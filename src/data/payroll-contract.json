@@ -1,0 +1,41 @@
+{
+  "contract": {
+    "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+    "signerAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "abi": [
+      "constructor()",
+      "function addEmployee(string _name, uint256 _age, uint256 _salary, bool _contractor, string _country, address _payAddress, bool _isHr)",
+      "function addHoursWorked(uint256 date, uint256 hoursWorked)",
+      "function addTaxRate(string country, string[] names, uint256[] lowerLimits, uint256[] upperLimits, uint256[] taxValues, string[] taxTypes)",
+      "function calculateContractorSalary(address _address) view returns (uint256)",
+      "function calculateSalary(address _address) view returns (string[], uint256[])",
+      "function contractorHours(uint256) view returns (uint256 dateReported, uint256 hoursReported, address contractorAddress)",
+      "function countries(uint256) view returns (string)",
+      "function employeeAddresses(uint256) view returns (address)",
+      "function employees(address) view returns (string name, uint256 age, uint256 salary, bool contractor, string country, bool isHr)",
+      "function getContractor()",
+      "function getContractorHours(address _address, uint256 startDate, uint256 endDate) view returns (uint256)",
+      "function getContractorHoursByMonth(uint256 contractorId, uint256 year, uint256 month) view returns (uint256)",
+      "function getContractorWorkedHours(address contractor) view returns (uint256[], uint256[])",
+      "function getCountries() view returns (string[])",
+      "function getEmployeeSalary() view returns (uint256)",
+      "function getEmployees() view returns (tuple(string name, uint256 age, uint256 salary, bool contractor, string country, bool isHr)[], address[])",
+      "function getFilteredExpenses(uint256 startDate, uint256 endDate) view returns (address[], string[], uint256[])",
+      "function getHoursWorked(uint256 date, address _address) view returns (uint256)",
+      "function getMonth() view returns (uint256)",
+      "function getMonthlyExpenses() view returns (address[], string[], uint256[])",
+      "function getPermissions() view returns (string[], bool[])",
+      "function getStartOfMonthTimestamp(uint256 year, uint256 month) pure returns (uint256)",
+      "function getTaxRate(string country) view returns (tuple(string name, uint256 lowerLimit, uint256 upperLimit, uint256 taxValue, string taxType)[])",
+      "function getThisMonthsSalaryInfo(uint256 startDate, uint256 endDate) view returns (uint256)",
+      "function getWorkedHours() view returns (uint256[], uint256[])",
+      "function logHours(uint256 _hoursWorked, uint256 _employeeId)",
+      "function permissions(uint256) view returns (string)",
+      "function removeEmployee(address employeeAddress)",
+      "function salaryEstimator(string _country, uint256 _value) view returns (uint256)",
+      "function setPermissions(bool[] newPermissions)",
+      "function uintToString(uint256 value) pure returns (string)",
+      "function updateEmployee(address _employeeAddress, string _name, uint256 _age, uint256 _salary, bool _contractor, string _country, bool _isHr)"
+    ]
+  }
+}
