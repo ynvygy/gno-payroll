@@ -53,8 +53,8 @@ function AddTaxRates({payrollContract, signer}) {
   
   const handleTaxRow = () => {
     setTaxNames([...taxNames, '']);
-    setLowerLimits([...lowerLimits, '']);
-    setUpperLimits([...upperLimits, '']);
+    setLowerLimits([...lowerLimits, 0]);
+    setUpperLimits([...upperLimits, 0]);
     setTaxValues([...taxValues, '']);
     setTaxTypes([...taxTypes,'']);
   };

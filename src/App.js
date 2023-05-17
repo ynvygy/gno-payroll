@@ -63,18 +63,20 @@ const App = () => {
     <div>
       <BrowserRouter>
         <CustomNav account={account} setAccount={setAccount} connectWallet={connectWallet}/>
-        <Routes>
-          <Route path="/" element={<Dashboard payrollContract={payrollContract} signer={signer} />} />
-          <Route path="/employees" element={<Employees payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/addemployee" element={<AddEmployee payrollContract={payrollContract} signer={signer} />} />
-          <Route path="/taxrates" element={<TaxRates payrollContract={payrollContract} signer={signer} />} />
-          <Route path="/addtaxrates" element={<AddTaxRates payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/taxreport" element={<TaxReport payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/hoursreport" element={<HoursReport payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/gnowner" element={<Gnowner payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/employeereport" element={<EmployeeReport payrollContract={payrollContract} signer={signer}/>} />
-          <Route path="/gnownerreport" element={<GnownerReport payrollContract={payrollContract} signer={signer}/>} />
-        </Routes>
+        <div className="dashboard">
+          <Routes>
+            <Route path="/" element={<Dashboard payrollContract={payrollContract} signer={signer} />} />
+            <Route path="/employees" element={<Employees payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/addemployee" element={<AddEmployee payrollContract={payrollContract} signer={signer} />} />
+            <Route path="/taxrates" element={<TaxRates payrollContract={payrollContract} signer={signer} />} />
+            <Route path="/addtaxrates" element={<AddTaxRates payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/taxreport" element={<TaxReport payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/hoursreport" element={<HoursReport payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/gnowner" element={<Gnowner payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/employeereport" element={<EmployeeReport payrollContract={payrollContract} signer={signer}/>} />
+            <Route path="/gnownerreport" element={<GnownerReport payrollContract={payrollContract} signer={signer}/>} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </div>
   );
