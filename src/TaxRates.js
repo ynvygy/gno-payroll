@@ -27,39 +27,47 @@ const TaxRates = ({payrollContract, signer}) => {
   }, [selectedCountry]);
 
   return (
-    <div>
-      <h2>List of Countries</h2>
-      <ul>
-        {countries.map((country, index) => (
-          <li key={index} onClick={() => handleCountryClick(country)}>
-            {country}
-          </li>
-        ))}
-      </ul>
-        <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Lower Limit</th>
-            <th>Upper Limit</th>
-            <th>Tax Value</th>
-            <th>Tax Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          {selectedCountry && selectedCountry.map((taxRate, index) => (
-            <tr key={index}>
-              <td>{taxRate.name}</td>
-              <td>{taxRate.lowerLimit.toString()}</td>
-              <td>{taxRate.upperLimit.toString()}</td>
-              <td>{taxRate.taxValue.toString()}</td>
-              <td>{taxRate.taxType}</td>
-            </tr>
+    <div className="container">
+      <div className="left-column">
+        <h2>List of Countries</h2>
+        <ul>
+          {countries.map((country, index) => (
+            <li key={index} onClick={() => handleCountryClick(country)}>
+              {country}
+            </li>
           ))}
-        </tbody>
-      </table>
-      <h2>Salary estimator for 10.000 / month</h2>
-      <h2>{estimator.toString()}</h2>
+        </ul>
+      </div>
+      {selectedCountry ? (<div className="right-column">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Lower Limit</th>
+              <th>Upper Limit</th>
+              <th>Tax Value</th>
+              <th>Tax Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedCountry &&
+              selectedCountry.map((taxRate, index) => (
+                <tr key={index}>
+                  <td>{taxRate.name}</td>
+                  <td>{taxRate.lowerLimit.toString()}</td>
+                  <td>{taxRate.upperLimit.toString()}</td>
+                  <td>{taxRate.taxValue.toString()}</td>
+                  <td>{taxRate.taxType.toString()}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+        <div className="salary-estimator">
+          <h2>Salary estimator for 10.000 / month</h2>
+          <h2>{estimator.toString()}</h2>
+        </div>
+      </div>
+      ) : (<div></div>) }
     </div>
   );
 };

@@ -70,12 +70,12 @@ function AddTaxRates({payrollContract, signer}) {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <label>
-          Country Name:
-          <input type="text" value={countryName} onChange={handleCountryNameChange} />
-        </label>
+        <h2>Tax Rate Builder</h2>
+        <div className="input-container">
+          <label for="country">Country</label>
+          <input type="text" id="country" value={countryName} onChange={handleCountryNameChange} />
+        </div>
         <br />
-        <h2>Regular Tax Rates</h2>
         <table>
           <thead>
             <tr>
@@ -103,10 +103,10 @@ function AddTaxRates({payrollContract, signer}) {
             ))}
           </tbody>
         </table>
-        <button type="button" onClick={handleTaxRow}>Add Tax Rate</button>
+        <button type="button" onClick={handleTaxRow}>Add</button>
         <br />
         <br />
-        <button type="submit">Add Tax Rates</button>
+        <button type="submit">Save tax rate</button>
       </form>
     </div>
   );

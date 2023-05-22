@@ -12,7 +12,7 @@ const Gnowner = ({payrollContract, signer}) => {
     };
     fetchPermissions();
   }, [payrollContract]);
-
+  
   async function handleSubmit(e) {
     e.preventDefault();
     await payrollContract.connect(signer).setPermissions(permissionsState);

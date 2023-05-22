@@ -95,10 +95,85 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  color: #0295a9;
+}
+
+.centered-text-blue {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 300px;
+  color: #0295a9;
 }
 
 .centered-text {
   font-size: 28px;
   font-weight: bold;
   margin-bottom: 300px;
+  color: #fdd037;
+  background-color: #0295a9;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.input-container-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.input-container label {
+  margin-bottom: 5px;
+}
+
+.input-container-name label {
+  margin-bottom: 5px;
+}
+
+.input-container-name input[type="text"] {
+  width: 500px;
+  padding: 5px;
+  font-size: 16px;
+}
+
+.input-container input[type="number"] {
+  width: 230px;
+  padding: 5px;
+  font-size: 16px;
+  margin-right: 25px;
+}
+
+.input-container input[type="text"] {
+  width: 230px;
+  padding: 5px;
+  font-size: 16px;
+  margin-right: 25px;
+}
+
+.input-row {
+  display: flex;
+}
+
+.container {
+  display: flex;
+}
+
+.left-column {
+  flex-basis: 50%;
+  margin-right: 10px;
+}
+
+.right-column {
+  flex-basis: 50%;
+}
+
+.salary-estimator {
+  width: 50%;
+  position: absolute;
+  top: 50%;
 }

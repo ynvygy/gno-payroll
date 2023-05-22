@@ -58,8 +58,9 @@ const CustomNav = ({ account, setAccount, connectWallet }) => {
         </Navbar>
       ) : (
         <div className="centered-text-container">
-          <div className="centered-text">Unlock your peace of mind</div>
-          <div className="centered-text"><br/>gNoWorriesJust</div>
+          <div className="centered-text-blue">Unlock your peace of mind</div>
+          <div className="centered-text"><br/>gNo</div>
+          <div className="centered-text-blue"><br/>WorriesJust</div>
           <div className="centered-text"><br/>PayGnoll</div>
         </div>
       ) }

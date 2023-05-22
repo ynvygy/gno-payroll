@@ -85,8 +85,8 @@ describe("Payroll", function () {
       const date = 1620421200; // May 7, 2021
       const employeeId = 1;
       const hoursWorked = 8;
-      await payroll.addHoursWorked(date, employeeId, hoursWorked);
-      const employeeToHours = await payroll.getHoursWorked(date, employeeId);
+      await payroll.connect(payAddress).addHoursWorked(date, hoursWorked);
+      const employeeToHours = await payroll.getHoursWorked(date, payAddress.address);
       expect(employeeToHours).to.equal(hoursWorked);
     });
   })
@@ -98,7 +98,7 @@ describe("Payroll", function () {
       await payroll.addHoursWorked(1617408000, 7); // April 3rd
   
       const totalHours = await payroll.getContractorHours(1, 1617235200, 1619827200); // April 1st - April 30th
-
+      console.log(totalHours)
       // Check that the total hours are correct
       expect(totalHours).to.equal(21);
     });
@@ -133,7 +133,7 @@ describe("Payroll", function () {
     });
   })
 
-  describe.only("#getEmployeeSalary", async () => {
+  describe("#getEmployeeSalary", async () => {
     it("should return the correct salary calculation", async function () {  
       await payroll.connect(owner).addTaxRate(
         "Germany",
@@ -148,6 +148,35 @@ describe("Payroll", function () {
       const estimatedSalary = await payroll.connect(payAddress).getEmployeeSalary();
       expect(estimatedSalary).to.equal(3600)
     });
+  })
+
+  describe.only("#payUnpaidHours", async () => {
+    it("should pay the hours", async function () {
+      await payroll.connect(owner).addTaxRate(
+        "Germany",
+        ["prog1"],
+        [0,],
+        [0],
+        [10],
+        ["percentage"]
+      )
+      await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
+
+      const amountToSend = ethers.utils.parseEther("7");
+      await owner.sendTransaction({
+        to: payroll.address,
+        value: amountToSend,
+      });
+
+      const date = 1679836800;
+  
+      await payroll.connect(payAddress).addHoursWorked(date, 2)
+  
+      await payroll.connect(payAddress).payUnpaidHours();
+      const paymentStatus = await payroll.connect(payAddress).getPaymentStatus();
+
+      expect(paymentStatus[2][0]).to.be.true;
+    })
   })
 });
 

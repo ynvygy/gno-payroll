@@ -35,6 +35,11 @@ contract Payroll {
         address contractorAddress;
     }
 
+    struct Payment {
+        uint paymentAmount;
+        bool paid;
+    }
+
     mapping(address => Employee) public employees;
     address[] public employeeAddresses;
     mapping(string => TaxRate[]) CountriesToTaxRates;
@@ -42,6 +47,7 @@ contract Payroll {
 
     mapping(uint => mapping(address => uint)) dateToContractorToHours;
     mapping(address => uint[]) contractorToDates;
+    mapping(uint => mapping(address => Payment)) dateToContractorToPayment;
 
     string[] public countries;
 
@@ -57,6 +63,8 @@ contract Payroll {
             "Allow to make payments"
         ];
     }
+
+    receive() external payable {}
 
     function getCountries() public view returns (string[] memory) {
         return countries;
@@ -105,7 +113,7 @@ contract Payroll {
         if (_isHr) {
             hr.push(_payAddress);
         }
-        employeeAddresses.push(msg.sender);
+        employeeAddresses.push(_payAddress);
         nextEmployeeId++;
     }
 
@@ -252,6 +260,10 @@ contract Payroll {
     function addHoursWorked(uint date, uint hoursWorked) public {
         dateToContractorToHours[date][msg.sender] += hoursWorked;
         contractorToDates[msg.sender].push(date);
+        Employee storage employee = employees[msg.sender];
+        uint toPay = hoursWorked * employee.salary;
+        Payment memory payment = Payment(toPay, false);
+        dateToContractorToPayment[date][msg.sender] = payment;
     }
 
     function getHoursWorked(
@@ -259,6 +271,32 @@ contract Payroll {
         address _address
     ) public view returns (uint) {
         return dateToContractorToHours[date][_address];
+    }
+
+    function getPaymentStatus()
+        public
+        view
+        returns (uint[] memory, uint[] memory, bool[] memory)
+    {
+        uint numDates = contractorToDates[msg.sender].length;
+
+        uint[] memory dates = new uint[](numDates);
+        uint[] memory sums = new uint[](numDates);
+        bool[] memory paymentStatuses = new bool[](numDates);
+
+        Employee storage employee = employees[msg.sender];
+
+        for (uint i = 0; i < numDates; i++) {
+            uint date = contractorToDates[msg.sender][i];
+            dates[i] = date;
+            sums[i] =
+                dateToContractorToHours[date][msg.sender] *
+                employee.salary;
+            paymentStatuses[i] = dateToContractorToPayment[date][msg.sender]
+                .paid;
+        }
+
+        return (dates, sums, paymentStatuses);
     }
 
     function getWorkedHours()
@@ -471,5 +509,28 @@ contract Payroll {
         //uint startOfMonth = uint(DateTimeLibrary.toTimestamp(dt));
         //return startOfMonth;
         return 3;
+    }
+
+    function payUnpaidHours() public {
+        uint totalPayment = 0;
+
+        for (uint i = 0; i < contractorToDates[msg.sender].length; i++) {
+            uint date = contractorToDates[msg.sender][i];
+
+            Payment storage payment = dateToContractorToPayment[date][
+                msg.sender
+            ];
+
+            if (!payment.paid) {
+                totalPayment += payment.paymentAmount;
+                payment.paid = true;
+            }
+        }
+
+        payable(msg.sender).transfer(totalPayment);
+    }
+
+    function getContractBalance() public view returns (uint) {
+        return address(this).balance;
     }
 }

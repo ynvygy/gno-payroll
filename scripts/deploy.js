@@ -8,10 +8,22 @@ const hardhat = require("hardhat");
 const fs = require("fs/promises")
 
 async function main() {
+  const [deployer] = await hre.ethers.getSigners();
+
   const Payroll = await hre.ethers.getContractFactory("Payroll");
   const payrollContract = await Payroll.deploy();
   await payrollContract.deployed()
   console.log("Payroll contract deployed to:", payrollContract.address);
+
+  const amountToSend = hre.ethers.utils.parseEther("7000");
+
+  const tx = {
+    to: payrollContract.address,
+    value: amountToSend,
+  };
+
+  const receipt = await deployer.sendTransaction(tx);
+  console.log("Funds transferred to the contract:", receipt);
 
   await writeDeploymentInfo("payroll", payrollContract)
 }
