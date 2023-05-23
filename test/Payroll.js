@@ -18,7 +18,7 @@ describe("Payroll", function () {
   
     name = 'Test Name'
     age = 30
-    salary = 4000
+    salary = 3000
     contractor = false
     country = 'Germany'
     isHr = false
@@ -83,10 +83,22 @@ describe("Payroll", function () {
   describe("#HoursWorked", async () => {
     it("should add hours worked for an employee and date", async function() {
       const date = 1620421200; // May 7, 2021
-      const employeeId = 1;
       const hoursWorked = 8;
+      
       await payroll.connect(payAddress).addHoursWorked(date, hoursWorked);
       const employeeToHours = await payroll.getHoursWorked(date, payAddress.address);
+      expect(employeeToHours).to.equal(hoursWorked);
+    });
+  })
+
+  describe("#getWorkedHours", async () => {
+    it("should add hours worked for an employee and date", async function() {
+      const date = 1620421200; // May 7, 2021
+      const hoursWorked = 8;
+
+      await payroll.connect(payAddress).addHoursWorked(date, hoursWorked);
+      const employeeToHours = await payroll.connect(payAddress).getWorkedHours()
+
       expect(employeeToHours).to.equal(hoursWorked);
     });
   })
@@ -162,11 +174,17 @@ describe("Payroll", function () {
       )
       await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
 
+      const getBalancezz = await payroll.getContractBalance();
+      console.log("a", getBalancezz)
+
       const amountToSend = ethers.utils.parseEther("7");
       await owner.sendTransaction({
         to: payroll.address,
         value: amountToSend,
       });
+
+      const getBalancez = await payroll.getContractBalance();
+      console.log("b", getBalancez)
 
       const date = 1679836800;
   
@@ -174,7 +192,9 @@ describe("Payroll", function () {
   
       await payroll.connect(payAddress).payUnpaidHours();
       const paymentStatus = await payroll.connect(payAddress).getPaymentStatus();
-
+      console.log(paymentStatus)
+      const getBalance = await payroll.getContractBalance();
+      console.log("c", getBalance)
       expect(paymentStatus[2][0]).to.be.true;
     })
   })

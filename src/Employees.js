@@ -1,6 +1,9 @@
 import { useEffect, useState, useReducer } from "react";
 
-const Employees = ({ payrollContract, signer }) => {
+const Employees = ({ payrollContract, signer, accountType }) => {
+  const [permissions, setPermissions] = useState([]);
+  const [permissionsState, setPermissionsState] = useState([]);
+
   const [employeeData, dispatch] = useReducer((state, action) => {
     switch (action.type) {
       case "SET_EMPLOYEES":
@@ -36,6 +39,14 @@ const Employees = ({ payrollContract, signer }) => {
       dispatch({ type: "SET_EMPLOYEE_COUNT", payload: employees.length });
     };
     fetchData();
+
+    const fetchPermissions = async () => {
+      const permissionsz = await payrollContract.getPermissions();
+      setPermissions(permissionsz[0]);
+      setPermissionsState(permissionsz[1]);
+    };
+    fetchPermissions();
+    console.log(permissions)
   }, [payrollContract]);
   
   const handleInputChange = (e, index, field) => {
@@ -76,22 +87,22 @@ const Employees = ({ payrollContract, signer }) => {
               <th>Contractor</th>
               <th>Country</th>
               <th>Is HR</th>
-              <th>Remove</th>
+              <th>Update/Remove</th>
             </tr>
           </thead>
           <tbody>
             {employees.map((employee, index) => (
-              <tr key={index}>
+              <tr key={index} className="employees-table">
                 <td>{employeeData.employeeAddresses[index]}</td>
-                <td><input type="text" value={employee.name} onChange={(e) => handleInputChange(e, index, 'name')} /></td>
-                <td><input type="number" value={employee.age} onChange={(e) => handleInputChange(e, index, 'age')} /></td>
-                <td><input type="number" value={employee.salary} onChange={(e) => handleInputChange(e, index, 'salary')} /></td>
-                <td><input type="checkbox" checked={employee.contractor} onChange={(e) => handleInputChange(e, index, 'contractor')} /></td>
-                <td><input type="text" value={employee.country} onChange={(e) => handleInputChange(e, index, 'country')} /></td>
-                <td><input type="checkbox" checked={employee.isHr} onChange={(e) => handleInputChange(e, index, 'isHr')} /></td>
+                <td><input type="text" value={employee.name} onChange={(e) => handleInputChange(e, index, 'name')} className="employees-text"/></td>
+                <td><input type="number" value={employee.age} onChange={(e) => handleInputChange(e, index, 'age')} className="employees-text"/></td>
+                <td><input type="number" value={employee.salary} onChange={(e) => handleInputChange(e, index, 'salary')} className="employees-text"/></td>
+                <td><input type="checkbox" checked={employee.contractor} onChange={(e) => handleInputChange(e, index, 'contractor')} className="employees-checkbox"/></td>
+                <td><input type="text" value={employee.country} onChange={(e) => handleInputChange(e, index, 'country')} className="employees-text"/></td>
+                <td><input type="checkbox" checked={employee.isHr} onChange={(e) => handleInputChange(e, index, 'isHr')} className="employees-checkbox"/></td>
                 <td>
-                  <button onClick={() => handleUpdate(index)}>Update</button>
-                  <button onClick={() => handleRemove(index)}>Remove</button>
+                  {accountType == "Gnowner" || (accountType == "HR" && permissionsState[2]) ? <button className="employees-button" onClick={() => handleUpdate(index)}>Update</button> : <></>}
+                  {accountType == "Gnowner" || (accountType == "HR" && permissionsState[1]) ? <button className="employees-button" onClick={() => handleRemove(index)}>Remove</button> : <></>}
                 </td>
               </tr>
             ))}

@@ -1,14 +1,11 @@
 import { Navbar, Nav } from 'react-bootstrap';
 import { useEffect } from 'react';
 
-const CustomNav = ({ account, setAccount, connectWallet }) => {
+const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, accountType }) => {
+  console.log(accountType)
   useEffect(() => {
     connectWallet();
   }, []);
-
-  const disconnectHandler = () => {
-    setAccount(null);
-  };
 
   return (
     <>
@@ -53,7 +50,7 @@ const CustomNav = ({ account, setAccount, connectWallet }) => {
           </Navbar.Collapse>
 
           <div className="navbar-brand-container">
-            <div className="brand-text">Gnowner</div>
+            <div className="brand-text">{accountType}</div>
           </div>
         </Navbar>
       ) : (

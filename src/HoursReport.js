@@ -27,12 +27,12 @@ const HoursReport = ({payrollContract, signer}) => {
 
   const handleGetSalaryInfo = async () => {
     const dateUnixTimestamp = Math.floor(new Date(selectedDate).getTime() / 1000);
-    const salary = await payrollContract.getThisMonthsSalaryInfo(dateUnixTimestamp, dateUnixTimestamp+10000000);
+    const salary = await payrollContract.connect(signer).getThisMonthsSalaryInfo(dateUnixTimestamp, dateUnixTimestamp+10000000);
     setSalaryInfo(salary);
   }
 
   const handleShowMeWorkedHours = async () => {
-    const [days, hours] = await payrollContract.getWorkedHours();
+    const [days, hours] = await payrollContract.connect(signer).getWorkedHours();
     setWorkedDays(days);
     setWorkedHours(hours);
   }

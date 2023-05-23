@@ -7,11 +7,12 @@ const EmployeeReport = ({ payrollContract, signer }) => {
 
   useEffect(() => {
     async function fetchPaymentData() {
-      const paymentData = await payrollContract.getPaymentStatus();
+      const paymentData = await payrollContract.connect(signer).getPaymentStatus();
       const [receivedDates, receivedSums, receivedPaymentStatuses] = paymentData;
       setDates(receivedDates);
       setSums(receivedSums);
       setPaymentStatuses(receivedPaymentStatuses);
+      console.log(paymentData)
     }
     fetchPaymentData();
   }, [payrollContract]);
@@ -22,9 +23,8 @@ const EmployeeReport = ({ payrollContract, signer }) => {
         console.error("No signer available");
         return;
       }
-      
-      const contractWithSigner = payrollContract.connect(signer);
-      const tx = await contractWithSigner.payUnpaidHours();
+
+      const tx = await payrollContract.connect(signer).payUnpaidHours();
       await tx.wait();
       console.log("Payment successful");
     } catch (error) {

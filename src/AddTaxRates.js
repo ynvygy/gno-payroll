@@ -7,7 +7,7 @@ function AddTaxRates({payrollContract, signer}) {
   const [upperLimits, setUpperLimits] = useState([]);
   const [taxValues, setTaxValues] = useState([]);
   const [taxTypes, setTaxTypes] = useState([]);
-  const [taxTypeValues, setTaxTypeValue] = useState([]);
+  const [taxTypeValues, setTaxTypeValues] = useState([]);
 
   const handleCountryNameChange = (event) => {
     setCountryName(event.target.value);
@@ -41,14 +41,14 @@ function AddTaxRates({payrollContract, signer}) {
     const newTaxTypes = [...taxTypes];
     newTaxTypes[index] = value;
     setTaxTypes(newTaxTypes);
-  
+
     const newTaxTypeValues = [...taxTypeValues];
     if (value === 'percentage') {
       newTaxTypeValues[index] = '0';
     } else if (value === 'flat') {
-      newTaxTypeValues[index] = '';
+      newTaxTypeValues[index] = '1';
     }
-    setTaxTypeValue(newTaxTypeValues);
+    setTaxTypeValues(newTaxTypeValues);
   };  
   
   const handleTaxRow = () => {
@@ -56,7 +56,7 @@ function AddTaxRates({payrollContract, signer}) {
     setLowerLimits([...lowerLimits, 0]);
     setUpperLimits([...upperLimits, 0]);
     setTaxValues([...taxValues, '']);
-    setTaxTypes([...taxTypes,'']);
+    setTaxTypes([...taxTypes,'percentage']);
   };
 
   async function handleSubmit(e) {

@@ -21,6 +21,7 @@ const App = () => {
   const [accounts, setAccounts] = useState([]);
   const [account, setAccount] = useState("");
   const [payrollContract, setPayrollContract] = useState({});
+  const [accountType, setAccountType] = useState("");
 
   const savedWalletAddress = localStorage.getItem("walletAddress");
 
@@ -37,6 +38,9 @@ const App = () => {
         const signer = provider.getSigner();
         setProvider(provider);
         setSigner(signer);
+
+        window.ethereum.on("accountsChanged", handleAccountsChanged);
+
         const accounts = await provider.listAccounts();
         setAccounts(accounts);
         setAccount(accounts[0]);
@@ -44,7 +48,8 @@ const App = () => {
         const payrollContract = new ethers.Contract(payrollAddress, payrollAbi, provider);
         console.log(payrollContract)
         setPayrollContract(payrollContract);
-        localStorage.setItem("walletAddress", account);
+        localStorage.setItem("walletAddress", accounts[0]);
+        getAccountType();
       } else {
         console.log("Please install MetaMask to use this application");
       }
@@ -53,21 +58,38 @@ const App = () => {
     }
   };
 
+  const disconnectHandler = () => {
+    localStorage.removeItem("walletAddress");
+    setAccount(null);
+  };
+
+  const handleAccountsChanged = (newAccounts) => {
+    setAccounts(newAccounts);
+    setAccount(newAccounts[0]);
+    localStorage.setItem("walletAddress", newAccounts[0]);
+  };
+
+  const getAccountType = async () => {
+    const accountType = await payrollContract.connect(signer).getAccountType();
+
+    setAccountType(accountType);
+  }
+
   useEffect(() => {
     if (savedWalletAddress) {
       setAccount(savedWalletAddress);
     }
-  }, []);
+  }, [getAccountType()]);
 
   return (
     <div>
       <BrowserRouter>
-        <CustomNav account={account} setAccount={setAccount} connectWallet={connectWallet}/>
+        <CustomNav account={account} setAccount={setAccount} connectWallet={connectWallet} disconnectHandler={disconnectHandler} accountType={accountType} getAccountType={getAccountType}/>
         <div className="dashboard">
           <Routes>
             <Route path="/" element={<Dashboard payrollContract={payrollContract} signer={signer} />} />
-            <Route path="/employees" element={<Employees payrollContract={payrollContract} signer={signer}/>} />
-            <Route path="/addemployee" element={<AddEmployee payrollContract={payrollContract} signer={signer} />} />
+            <Route path="/employees" element={<Employees payrollContract={payrollContract} signer={signer} accountType={accountType}/>} />
+            <Route path="/addemployee" element={<AddEmployee payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/taxrates" element={<TaxRates payrollContract={payrollContract} signer={signer} />} />
             <Route path="/addtaxrates" element={<AddTaxRates payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/taxreport" element={<TaxReport payrollContract={payrollContract} signer={signer}/>} />

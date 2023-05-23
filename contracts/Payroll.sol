@@ -225,7 +225,6 @@ contract Payroll {
         uint endDate
     ) public view returns (uint) {
         uint totalHours = getContractorHours(msg.sender, startDate, endDate);
-        console.log(totalHours);
         uint ratePerHour = employees[msg.sender].salary;
         return totalHours * ratePerHour;
     }
@@ -263,6 +262,7 @@ contract Payroll {
         Employee storage employee = employees[msg.sender];
         uint toPay = hoursWorked * employee.salary;
         Payment memory payment = Payment(toPay, false);
+        console.log(msg.sender);
         dateToContractorToPayment[date][msg.sender] = payment;
     }
 
@@ -527,10 +527,44 @@ contract Payroll {
             }
         }
 
-        payable(msg.sender).transfer(totalPayment);
+        uint etherAmount = totalPayment * 1e15;
+        payable(msg.sender).transfer(etherAmount);
     }
 
     function getContractBalance() public view returns (uint) {
         return address(this).balance;
+    }
+
+    function payUnpaid(address targetAddress) public {
+        uint totalPayment = 0;
+
+        for (uint i = 0; i < contractorToDates[targetAddress].length; i++) {
+            uint date = contractorToDates[targetAddress][i];
+
+            Payment storage payment = dateToContractorToPayment[date][
+                targetAddress
+            ];
+
+            if (!payment.paid) {
+                totalPayment += payment.paymentAmount;
+                payment.paid = true;
+            }
+        }
+
+        uint etherAmount = totalPayment * 1e15;
+        payable(targetAddress).transfer(etherAmount);
+    }
+
+    function getAccountType() public view returns (string memory) {
+        if (owner == msg.sender) {
+            return "Gnowner";
+        } else {
+            Employee storage employee = employees[msg.sender];
+            if (employee.isHr) {
+                return "HR";
+            } else {
+                return "Employee";
+            }
+        }
     }
 }

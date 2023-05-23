@@ -41,8 +41,8 @@ const GnownerReport = ({payrollContract, signer}) => {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
-    const startTimestamp = startDate.getTime() / 1000;
-    const endTimestamp = endDate.getTime() / 1000;
+    const startTimestamp = Math.floor(startDate.getTime() / 1000);
+    const endTimestamp = Math.floor(endDate.getTime() / 1000);
     const [contractorAddresses, contractorCountries, contractorSalaries] =
       await payrollContract.getFilteredExpenses(startTimestamp, endTimestamp);
     const filteredExpenses = [];
