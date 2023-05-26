@@ -103,10 +103,10 @@ function AddTaxRates({payrollContract, signer}) {
             ))}
           </tbody>
         </table>
-        <button type="button" onClick={handleTaxRow}>Add</button>
+        <button type="button" onClick={handleTaxRow} className="employees-button">Add</button>
         <br />
         <br />
-        <button type="submit">Save tax rate</button>
+        <button type="submit" className="employees-button">Save tax rate</button>
       </form>
     </div>
   );

@@ -41,9 +41,9 @@ const HoursReport = ({payrollContract, signer}) => {
     <div>
       <input type="number" value={hours} onChange={handleHoursChange} />
       <input type="date" value={selectedDate} onChange={handleDateChange} />
-      <button onClick={handleAddHoursWorked}>Add hours worked</button>
-      <button onClick={handleGetSalaryInfo}>Get salary info</button>
-      <button onClick={handleShowMeWorkedHours}>Show me worked hours</button>
+      <button onClick={handleAddHoursWorked} className="employees-button">Add hours worked</button>
+      <button onClick={handleGetSalaryInfo} className="employees-button">Get salary info</button>
+      <button onClick={handleShowMeWorkedHours} className="employees-button">Show me worked hours</button>
       {salaryInfo !== null && <p>Salary info: {salaryInfo.toString()}</p>}
 
       <div>

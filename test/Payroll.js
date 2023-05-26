@@ -10,10 +10,12 @@ describe("Payroll", function () {
   let name, age, salary, contractor, country, payAddress, isHr;
   beforeEach(async () => {
     [owner, payAddress] = await ethers.getSigners()
-  
+    const EurToken = await ethers.getContractFactory("Eurefake")
+    eurtoken = await EurToken.deploy()
+    await eurtoken.deployed()
+
     const Payroll = await ethers.getContractFactory("Payroll")
-  
-    payroll = await Payroll.deploy()
+    payroll = await Payroll.deploy(eurtoken.address)
     await payroll.deployed();
   
     name = 'Test Name'
@@ -164,6 +166,7 @@ describe("Payroll", function () {
 
   describe.only("#payUnpaidHours", async () => {
     it("should pay the hours", async function () {
+      console.log("da")
       await payroll.connect(owner).addTaxRate(
         "Germany",
         ["prog1"],
@@ -174,17 +177,17 @@ describe("Payroll", function () {
       )
       await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
 
-      const getBalancezz = await payroll.getContractBalance();
-      console.log("a", getBalancezz)
-
-      const amountToSend = ethers.utils.parseEther("7");
+      const amountToSend = ethers.utils.parseEther("1");
       await owner.sendTransaction({
         to: payroll.address,
         value: amountToSend,
       });
 
-      const getBalancez = await payroll.getContractBalance();
-      console.log("b", getBalancez)
+      const transferedTokens = 100000;
+      await eurtoken.transfer(payroll.address, transferedTokens)
+
+      const getTokenBalancez = await eurtoken.balanceOf(payroll.address)
+      console.log("c", getTokenBalancez)
 
       const date = 1679836800;
   
@@ -193,9 +196,10 @@ describe("Payroll", function () {
       await payroll.connect(payAddress).payUnpaidHours();
       const paymentStatus = await payroll.connect(payAddress).getPaymentStatus();
       console.log(paymentStatus)
-      const getBalance = await payroll.getContractBalance();
+      const getBalance = await eurtoken.balanceOf(payroll.address);
       console.log("c", getBalance)
       expect(paymentStatus[2][0]).to.be.true;
+      expect(getBalance).to.equal(94000);
     })
   })
 });

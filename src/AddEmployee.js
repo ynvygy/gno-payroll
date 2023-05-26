@@ -57,7 +57,7 @@ const AddEmployee = ({payrollContract, signer}) => {
         <input type="checkbox" id="ishr" checked={isHr} onChange={(e) => setIsHr(e.target.checked)} />
       </div>
       <br />
-      <button type="submit">Add Employee</button>
+      <button type="submit" className="employees-button">Add Employee</button>
     </form>
   );
 };

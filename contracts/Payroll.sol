@@ -5,12 +5,14 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
 // import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Payroll {
     address owner;
     address[] hr;
     uint employeesCount;
     uint nextEmployeeId;
+    IERC20 public eurefakeToken;
 
     struct Employee {
         string name;
@@ -37,7 +39,9 @@ contract Payroll {
 
     struct Payment {
         uint paymentAmount;
+        uint256 taxes;
         bool paid;
+        bool paidTaxes;
     }
 
     mapping(address => Employee) public employees;
@@ -49,12 +53,14 @@ contract Payroll {
     mapping(address => uint[]) contractorToDates;
     mapping(uint => mapping(address => Payment)) dateToContractorToPayment;
 
+    mapping(address => Payment[]) employeeToPayments;
+
     string[] public countries;
 
     string[] public permissions;
     mapping(string => bool) permissionsState;
 
-    constructor() {
+    constructor(address eurefakeTokenAddress) {
         owner = msg.sender;
         permissions = [
             "Allow to add employees",
@@ -62,6 +68,7 @@ contract Payroll {
             "Allow to edit employees",
             "Allow to make payments"
         ];
+        eurefakeToken = IERC20(eurefakeTokenAddress);
     }
 
     receive() external payable {}
@@ -165,61 +172,6 @@ contract Payroll {
         return (result, employeeAddresses);
     }
 
-    function calculateSalary(
-        address _address
-    ) public view returns (string[] memory, uint[] memory) {
-        Employee memory employee = employees[_address];
-        TaxRate[] memory taxRates = CountriesToTaxRates[employee.country];
-        string[] memory salaryInfos = new string[](taxRates.length);
-        uint[] memory valueInfos = new uint[](taxRates.length);
-
-        uint salary = employee.salary;
-        for (uint i = 0; i < taxRates.length; i++) {
-            salaryInfos[i] = taxRates[i].name;
-            uint valueInfo;
-            if (salary > taxRates[i].lowerLimit) {
-                valueInfo =
-                    (salary - taxRates[i].lowerLimit) /
-                    taxRates[i].taxValue;
-            }
-        }
-
-        return (salaryInfos, valueInfos);
-    }
-
-    // Thank you ChatGPT
-    function uintToString(uint256 value) public pure returns (string memory) {
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
-    }
-
-    function logHours(uint _hoursWorked, uint _employeeId) public {}
-
-    function calculateContractorSalary(
-        address _address
-    ) public view returns (uint) {
-        Employee memory employee = employees[_address];
-        //TaxRates storage taxRate = TaxRates[employee.country];
-        // working hours
-        // getContractorWorkingHours
-        //return workinghours * salary;
-        return employee.salary;
-    }
-
     function getThisMonthsSalaryInfo(
         uint startDate,
         uint endDate
@@ -261,7 +213,7 @@ contract Payroll {
         contractorToDates[msg.sender].push(date);
         Employee storage employee = employees[msg.sender];
         uint toPay = hoursWorked * employee.salary;
-        Payment memory payment = Payment(toPay, false);
+        Payment memory payment = Payment(toPay, 0, false, false);
         console.log(msg.sender);
         dateToContractorToPayment[date][msg.sender] = payment;
     }
@@ -278,25 +230,42 @@ contract Payroll {
         view
         returns (uint[] memory, uint[] memory, bool[] memory)
     {
-        uint numDates = contractorToDates[msg.sender].length;
-
-        uint[] memory dates = new uint[](numDates);
-        uint[] memory sums = new uint[](numDates);
-        bool[] memory paymentStatuses = new bool[](numDates);
-
         Employee storage employee = employees[msg.sender];
 
-        for (uint i = 0; i < numDates; i++) {
-            uint date = contractorToDates[msg.sender][i];
-            dates[i] = date;
-            sums[i] =
-                dateToContractorToHours[date][msg.sender] *
-                employee.salary;
-            paymentStatuses[i] = dateToContractorToPayment[date][msg.sender]
-                .paid;
-        }
+        if (employee.contractor) {
+            uint numDates = contractorToDates[msg.sender].length;
+            uint[] memory dates = new uint[](numDates);
+            uint[] memory sums = new uint[](numDates);
+            bool[] memory paymentStatuses = new bool[](numDates);
 
-        return (dates, sums, paymentStatuses);
+            for (uint i = 0; i < numDates; i++) {
+                uint date = contractorToDates[msg.sender][i];
+                dates[i] = date;
+                sums[i] =
+                    dateToContractorToHours[date][msg.sender] *
+                    employee.salary;
+                paymentStatuses[i] = dateToContractorToPayment[date][msg.sender]
+                    .paid;
+            }
+
+            return (dates, sums, paymentStatuses);
+        } else {
+            uint numDates = employeeToPayments[msg.sender].length;
+
+            uint[] memory totalSalaries = new uint[](numDates);
+            uint[] memory afterTaxes = new uint[](numDates);
+            bool[] memory paymentStatuses = new bool[](numDates);
+
+            for (uint i = 0; i < numDates; i++) {
+                totalSalaries[i] = employee.salary;
+                afterTaxes[i] = salaryEstimator(
+                    employee.country,
+                    employee.salary
+                );
+                paymentStatuses[i] = employeeToPayments[msg.sender][i].paid;
+            }
+            return (totalSalaries, afterTaxes, paymentStatuses);
+        }
     }
 
     function getWorkedHours()
@@ -339,8 +308,6 @@ contract Payroll {
         }
         return totalHours;
     }
-
-    function getContractor() public {}
 
     function salaryEstimator(
         string memory _country,
@@ -399,52 +366,6 @@ contract Payroll {
         return salaryEstimator(country, salary);
     }
 
-    function getMonth() public view returns (uint) {
-        return ((block.timestamp / 1 days) % 365) / 30 + 1;
-    }
-
-    function getMonthlyExpenses()
-        public
-        view
-        returns (address[] memory, string[] memory, uint[] memory)
-    {
-        //uint currentMonth = getMonth(now);
-        //uint currentYear = getYear(now);
-        //uint startOfMonth = getTimestamp(currentYear, currentMonth, 1);
-        //uint endOfMonth = getTimestamp(currentYear, currentMonth + 1, 1) - 1;
-        uint startOfMonth = 1681156800;
-        uint endOfMonth = 1681156800;
-
-        uint[] memory salaries = new uint[](employeeAddresses.length);
-        string[] memory countries = new string[](employeeAddresses.length);
-
-        for (uint i = 0; i < employeeAddresses.length; i++) {
-            address employeeAddress = employeeAddresses[i];
-            uint[] storage workedDates = contractorToDates[employeeAddress];
-            uint totalHours = 0;
-
-            for (uint j = 0; j < workedDates.length; j++) {
-                uint date = workedDates[j];
-                if (date >= startOfMonth && date <= endOfMonth) {
-                    totalHours += dateToContractorToHours[date][
-                        employeeAddress
-                    ];
-                }
-            }
-
-            Employee storage employee = employees[employeeAddress];
-            string memory country = employee.country;
-            uint salary = salaryEstimator(
-                country,
-                totalHours * employee.salary
-            );
-            salaries[i] = salary;
-            countries[i] = country;
-        }
-
-        return (employeeAddresses, countries, salaries);
-    }
-
     function getFilteredExpenses(
         uint startDate,
         uint endDate
@@ -482,77 +403,34 @@ contract Payroll {
         return (employeeAddresses, countries, salaries);
     }
 
-    function getContractorHoursByMonth(
-        uint contractorId,
-        uint year,
-        uint month
-    ) public view returns (uint) {
-        uint totalHours = 0;
-        uint startOfMonth = getStartOfMonthTimestamp(year, month);
-        //uint endOfMonth = getEndOfMonthTimestamp(year, month);
-        //console.log(startOfMonth);
-        //for (uint i = startOfMonth; i <= endOfMonth; i += 1 days) {
-        //   totalHours += dateToContractorToHours[i][contractorId];
-        //}
-
-        //return totalHours;
-        return 4;
-    }
-
-    function getStartOfMonthTimestamp(
-        uint year,
-        uint month
-    ) public pure returns (uint) {
-        // Convert year and month to a DateTime struct
-        //DateTime memory dt = DateTime({year: year, month: month, day: 1});
-        // Get the Unix timestamp of the start of the month
-        //uint startOfMonth = uint(DateTimeLibrary.toTimestamp(dt));
-        //return startOfMonth;
-        return 3;
-    }
-
     function payUnpaidHours() public {
         uint totalPayment = 0;
 
-        for (uint i = 0; i < contractorToDates[msg.sender].length; i++) {
-            uint date = contractorToDates[msg.sender][i];
+        Employee storage employee = employees[msg.sender];
+        if (employee.contractor) {
+            for (uint i = 0; i < contractorToDates[msg.sender].length; i++) {
+                uint date = contractorToDates[msg.sender][i];
 
-            Payment storage payment = dateToContractorToPayment[date][
-                msg.sender
-            ];
+                Payment storage payment = dateToContractorToPayment[date][
+                    msg.sender
+                ];
 
-            if (!payment.paid) {
-                totalPayment += payment.paymentAmount;
-                payment.paid = true;
+                if (!payment.paid) {
+                    totalPayment += payment.paymentAmount;
+                    payment.paid = true;
+                }
+            }
+            uint256 amount = totalPayment * (10 ** 18);
+            eurefakeToken.transfer(msg.sender, amount);
+        } else {
+            Payment[] storage payments = employeeToPayments[msg.sender];
+            for (uint i = 0; i < payments.length; i++) {
+                uint toPay = (payments[i].paymentAmount + payments[i].taxes) *
+                    (10 ** 18);
+                eurefakeToken.transfer(msg.sender, toPay);
+                payments[i].paid = true;
             }
         }
-
-        uint etherAmount = totalPayment * 1e15;
-        payable(msg.sender).transfer(etherAmount);
-    }
-
-    function getContractBalance() public view returns (uint) {
-        return address(this).balance;
-    }
-
-    function payUnpaid(address targetAddress) public {
-        uint totalPayment = 0;
-
-        for (uint i = 0; i < contractorToDates[targetAddress].length; i++) {
-            uint date = contractorToDates[targetAddress][i];
-
-            Payment storage payment = dateToContractorToPayment[date][
-                targetAddress
-            ];
-
-            if (!payment.paid) {
-                totalPayment += payment.paymentAmount;
-                payment.paid = true;
-            }
-        }
-
-        uint etherAmount = totalPayment * 1e15;
-        payable(targetAddress).transfer(etherAmount);
     }
 
     function getAccountType() public view returns (string memory) {
@@ -562,9 +440,68 @@ contract Payroll {
             Employee storage employee = employees[msg.sender];
             if (employee.isHr) {
                 return "HR";
+            } else if (employee.contractor) {
+                return "Contractor";
             } else {
                 return "Employee";
             }
         }
+    }
+
+    function generatePaymentsForCurrentMonth(uint monthUnix) public {
+        for (uint256 i = 0; i < employeeAddresses.length; i++) {
+            Employee memory employee = employees[employeeAddresses[i]];
+            if (!employee.contractor) {
+                uint256 paymentAmount = salaryEstimator(
+                    employee.country,
+                    employee.salary
+                );
+                uint256 taxes = employee.salary - paymentAmount;
+
+                Payment memory payment = Payment(
+                    paymentAmount,
+                    taxes,
+                    false,
+                    false
+                );
+                employeeToPayments[employeeAddresses[i]].push(payment);
+            }
+        }
+    }
+
+    function getUnpaidSalariesSum() public view returns (uint256) {
+        uint256 totalUnpaidSalaries = 0;
+
+        for (uint256 i = 0; i < employeeAddresses.length; i++) {
+            address employeeAddress = employeeAddresses[i];
+            Payment[] storage payments = employeeToPayments[employeeAddress];
+
+            for (uint256 j = 0; j < payments.length; j++) {
+                if (!payments[j].paid) {
+                    totalUnpaidSalaries += payments[j].paymentAmount;
+                }
+            }
+        }
+
+        totalUnpaidSalaries += getThisMonthsSalaryInfo(1672454400, 1677721599);
+
+        return totalUnpaidSalaries;
+    }
+
+    function getTaxExpenses() public view returns (uint256) {
+        uint256 totalUnpaidTaxes = 0;
+
+        for (uint256 i = 0; i < employeeAddresses.length; i++) {
+            address employeeAddress = employeeAddresses[i];
+            Payment[] storage payments = employeeToPayments[employeeAddress];
+
+            for (uint256 j = 0; j < payments.length; j++) {
+                if (!payments[j].paidTaxes) {
+                    totalUnpaidTaxes += payments[j].taxes;
+                }
+            }
+        }
+
+        return totalUnpaidTaxes;
     }
 }

@@ -10,22 +10,33 @@ const fs = require("fs/promises")
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
 
+  const Eurefake = await hre.ethers.getContractFactory("Eurefake");
+  const eurefakeContract = await Eurefake.deploy();
+  await eurefakeContract.deployed()
+  console.log("Eurefake contract deployed to:", eurefakeContract.address);
+
   const Payroll = await hre.ethers.getContractFactory("Payroll");
-  const payrollContract = await Payroll.deploy();
+  const payrollContract = await Payroll.deploy(eurefakeContract.address);
   await payrollContract.deployed()
   console.log("Payroll contract deployed to:", payrollContract.address);
 
-  const amountToSend = hre.ethers.utils.parseEther("7000");
+  // for transaction purposes
+  const amountToSend = hre.ethers.utils.parseEther("1000");
 
   const tx = {
     to: payrollContract.address,
     value: amountToSend,
   };
 
+  const amountToTransfer = ethers.utils.parseUnits("100000", 18);
+  await eurefakeContract.transfer(payrollContract.address, amountToTransfer);
+  console.log("Payroll contract funded with:", amountToTransfer.toString(), "Eurefake tokens");
+
   const receipt = await deployer.sendTransaction(tx);
   console.log("Funds transferred to the contract:", receipt);
-
+  console.log(await eurefakeContract.balanceOf(payrollContract.address))
   await writeDeploymentInfo("payroll", payrollContract)
+  await writeDeploymentInfo("eurefake", eurefakeContract)
 }
 
 async function writeDeploymentInfo(filename, contract) {
@@ -33,7 +44,7 @@ async function writeDeploymentInfo(filename, contract) {
     contract: {
       address: contract.address,
       signerAddress: contract.signer.address,
-      abi: contract.interface.format()
+      abi: contract.interface.format(),
     }
   }
 

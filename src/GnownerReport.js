@@ -2,40 +2,41 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ethers } from "ethers";
+import eurefakeContractData from './data/eurefake-contract.json';
+import eurefakeContractBytecode from './data/Eurefake.json';
 
+const eurefakeAddress = eurefakeContractData.contract.address;
 
 const GnownerReport = ({payrollContract, signer}) => {
-  const [contractBalance, setContractBalance] = useState("");
-  const [expenses, setExpenses] = useState(null);
+  const [contractBalance, setContractBalance] = useState(0);
   const [filteredExpenses, setFilteredExpenses] = useState(null);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [outstandingDebt, setOutstandingDebt] = useState(0);
+  const [taxExpenses, setTaxExpenses] = useState(0);
 
   useEffect(() => {
     async function fetchContractBalance() {
-      const balance = await payrollContract.getContractBalance();
-      const balanceInEther = ethers.utils.formatEther(balance);
-      setContractBalance(balanceInEther.toString());
+      const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+      const EurefakeContractFactory = new ethers.ContractFactory(eurefakeContractData.contract.abi, eurefakeContractBytecode.bytecode, signer || provider);
+      const eurefakeContract = EurefakeContractFactory.attach(eurefakeAddress);
+      const balance = await eurefakeContract.balanceOf(payrollContract.address);
+      const formattedBalance = ethers.utils.formatUnits(balance, 18);
+      setContractBalance(formattedBalance.toString());
     }
     fetchContractBalance();
 
-    async function fetchMonthlyExpenses() {
-      const [contractorAddresses, contractorCountries, contractorSalaries] =
-        await payrollContract.getMonthlyExpenses();
-      const newExpenses = [];
-
-      for (let i = 0; i < contractorAddresses.length; i++) {
-        newExpenses.push({
-          address: contractorAddresses[i],
-          country: contractorCountries[i],
-          salary: contractorSalaries[i],
-        });
-      }
-
-      setExpenses(newExpenses);
+    async function fetchOutstandingDebt() {
+      const outstandingDebt = await payrollContract.getUnpaidSalariesSum();
+      setOutstandingDebt(outstandingDebt.toString());
     }
+    fetchOutstandingDebt();
 
-    fetchMonthlyExpenses();
+    async function fetchTaxExpenses() {
+      const taxExpenses = await payrollContract.getTaxExpenses();
+      setTaxExpenses(taxExpenses.toString());
+    }
+    fetchTaxExpenses();
   }, [payrollContract]);
 
   const handleFormSubmit = async (event) => {
@@ -56,30 +57,25 @@ const GnownerReport = ({payrollContract, signer}) => {
     setFilteredExpenses(filteredExpenses);
   };
 
+  const generateReports = async () => {
+    await payrollContract.connect(signer).generatePaymentsForCurrentMonth(45);
+  }
+
   return (
     <div>
-    <div>
-      Contract Balance: {contractBalance}
-    </div>
-      <h1>Monthly Expenses</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Contractor Address</th>
-            <th>Country</th>
-            <th>Salary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses && expenses.map((expense) => (
-            <tr key={expense.address}>
-              <td>{expense.address}</td>
-              <td>{expense.country}</td>
-              <td>{expense.salary.toString()} ETH</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <button onClick={generateReports} className="employees-button">Generate reports</button>
+      <div>
+        Contract Balance: {contractBalance}
+      </div>
+      <div>
+        Outstanding debt unpaid: {outstandingDebt}
+      </div>
+      <div>
+        Tax expenses: {taxExpenses}
+      </div>
+      <div>
+        Health status: {((1-(parseFloat(outstandingDebt)+parseFloat(taxExpenses))/parseFloat(contractBalance))*100).toFixed(2)}
+      </div>
 
       <div>
         <DatePicker

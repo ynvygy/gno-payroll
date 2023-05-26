@@ -75,6 +75,12 @@ const App = () => {
     setAccountType(accountType);
   }
 
+  const getPermissions = async () => {
+    const accountType = await payrollContract.connect(signer).getAccountType();
+
+    setAccountType(accountType);
+  }
+
   useEffect(() => {
     if (savedWalletAddress) {
       setAccount(savedWalletAddress);
