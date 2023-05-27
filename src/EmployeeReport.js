@@ -34,24 +34,26 @@ const EmployeeReport = ({ payrollContract, signer }) => {
 
   return (
     <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Sum</th>
-            <th>Payment Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dates.map((date, index) => (
-            <tr key={index}>
-              <td>{new Date(date * 1000).toLocaleDateString()}</td>
-              <td>{sums[index].toString()}</td>
-              <td>{paymentStatuses[index].toString()}</td>
+      <div className="hours-worked">
+        <table className="standard-style">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Sum</th>
+              <th>Payment Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {dates.map((date, index) => (
+              <tr key={index}>
+                <td>{new Date(date * 1000).toLocaleDateString()}</td>
+                <td>{sums[index].toString()}</td>
+                <td>{paymentStatuses[index].toString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <button onClick={payOutstandingDebt} className="employees-button">Pay all outstanding debt</button>
     </div>
   );

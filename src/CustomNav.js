@@ -1,10 +1,20 @@
 import { Navbar, Nav } from 'react-bootstrap';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, accountType }) => {
-  console.log(accountType)
+  const [selectedLink, setSelectedLink] = useState('');
+
+  const handleLinkClick = (link) => {
+    setSelectedLink(link);
+    localStorage.setItem('selectedLink', link);
+  };
+
   useEffect(() => {
     connectWallet();
+    const storedLink = localStorage.getItem('selectedLink');
+    if (storedLink) {
+      setSelectedLink(storedLink);
+    }
   }, []);
 
   return (
@@ -35,17 +45,17 @@ const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, acco
         <Navbar bg="light" expand="lg" className="left-navbar">
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="flex-column">
-              <Nav.Link href="/">Dashboard</Nav.Link>
-              <Nav.Link href="/employees">Employees</Nav.Link>
-              <Nav.Link href="/addemployee">Add Employee</Nav.Link>
-              <Nav.Link href="/taxrates">Tax Rates</Nav.Link>
-              <Nav.Link href="/addtaxrates">Add Tax Rate</Nav.Link>
-              <Nav.Link href="/reports">Reports</Nav.Link>
-              <Nav.Link href="/taxreport">Tax Report</Nav.Link>
-              <Nav.Link href="/hoursreport">Timesheet</Nav.Link>
-              <Nav.Link href="/gnowner">Gnowner</Nav.Link>
-              <Nav.Link href="/employeereport">Employee Report</Nav.Link>
-              <Nav.Link href="/gnownerreport">Gnowner Report</Nav.Link>
+              <Nav.Link href="/" className={selectedLink === '/' ? 'selected' : ''} onClick={() => handleLinkClick('/')}>Dashboard</Nav.Link>
+              <Nav.Link href="/employees" className={selectedLink === '/employees' ? 'selected' : ''} onClick={() => handleLinkClick('/employees')}>Employees</Nav.Link>
+              <Nav.Link href="/addemployee" className={selectedLink === '/addemployee' ? 'selected' : ''} onClick={() => handleLinkClick('/addemployee')}>Add Employee</Nav.Link>
+              <Nav.Link href="/taxrates" className={selectedLink === '/taxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/taxrates')}>Tax Rates</Nav.Link>
+              <Nav.Link href="/addtaxrates" className={selectedLink === '/addtaxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/addtaxrates')}>Add Tax Rate</Nav.Link>
+              <Nav.Link href="/reports" className={selectedLink === '/reports' ? 'selected' : ''} onClick={() => handleLinkClick('/reports')}>Reports</Nav.Link>
+              <Nav.Link href="/taxreport" className={selectedLink === '/taxreport' ? 'selected' : ''} onClick={() => handleLinkClick('/taxreport')}>Tax Report</Nav.Link>
+              <Nav.Link href="/hoursreport" className={selectedLink === '/hoursreport' ? 'selected' : ''} onClick={() => handleLinkClick('/hoursreport')}>Timesheet</Nav.Link>
+              <Nav.Link href="/gnowner" className={selectedLink === '/gnowner' ? 'selected' : ''} onClick={() => handleLinkClick('/gnowner')}>Gnowner</Nav.Link>
+              <Nav.Link href="/employeereport" className={selectedLink === '/employeereport' ? 'selected' : ''} onClick={() => handleLinkClick('/employeereport')}>Employee Report</Nav.Link>
+              <Nav.Link href="/gnownerreport" className={selectedLink === '/gnownerreport' ? 'selected' : ''} onClick={() => handleLinkClick('/gnownerreport')}>Gnowner Report</Nav.Link>
             </Nav>
           </Navbar.Collapse>
 

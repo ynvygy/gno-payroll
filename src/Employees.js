@@ -3,6 +3,7 @@ import { useEffect, useState, useReducer } from "react";
 const Employees = ({ payrollContract, signer, accountType }) => {
   const [permissions, setPermissions] = useState([]);
   const [permissionsState, setPermissionsState] = useState([]);
+  const [editMode, setEditMode] = useState(false);
 
   const [employeeData, dispatch] = useReducer((state, action) => {
     switch (action.type) {
@@ -31,6 +32,10 @@ const Employees = ({ payrollContract, signer, accountType }) => {
   }, { employees: [], employeeCount: 0, employeeAddresses: [] });
   
   const { employees, employeeCount } = employeeData;
+
+  const handleToggleEditMode = () => {
+    setEditMode(!editMode);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,38 +81,78 @@ const Employees = ({ payrollContract, signer, accountType }) => {
     <div>
       <div>Employee count: {employeeCount}</div>
       <h2>Employees</h2>
+      <div className="button-toggle">
+        {editMode ? (
+          <button onClick={handleToggleEditMode} className="exit-button">
+            Exit edit mode
+          </button>
+        ) : (          
+          <button onClick={handleToggleEditMode} className="employees-button">
+            Enter edit mode
+          </button>
+        )}
+      </div>
       {employees && employees.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Address</th>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Salary</th>
-              <th>Contractor</th>
-              <th>Country</th>
-              <th>Is HR</th>
-              <th>Update/Remove</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((employee, index) => (
-              <tr key={index} className="employees-table">
-                <td>{employeeData.employeeAddresses[index]}</td>
-                <td><input type="text" value={employee.name} onChange={(e) => handleInputChange(e, index, 'name')} className="employees-text"/></td>
-                <td><input type="number" value={employee.age} onChange={(e) => handleInputChange(e, index, 'age')} className="employees-text"/></td>
-                <td><input type="number" value={employee.salary} onChange={(e) => handleInputChange(e, index, 'salary')} className="employees-text"/></td>
-                <td><input type="checkbox" checked={employee.contractor} onChange={(e) => handleInputChange(e, index, 'contractor')} className="employees-checkbox"/></td>
-                <td><input type="text" value={employee.country} onChange={(e) => handleInputChange(e, index, 'country')} className="employees-text"/></td>
-                <td><input type="checkbox" checked={employee.isHr} onChange={(e) => handleInputChange(e, index, 'isHr')} className="employees-checkbox"/></td>
-                <td>
-                  {accountType == "Gnowner" || (accountType == "HR" && permissionsState[2]) ? <button className="employees-button" onClick={() => handleUpdate(index)}>Update</button> : <></>}
-                  {accountType == "Gnowner" || (accountType == "HR" && permissionsState[1]) ? <button className="employees-button" onClick={() => handleRemove(index)}>Remove</button> : <></>}
-                </td>
+        editMode ? (
+          <table className="excel-style">
+            <thead>
+              <tr>
+                <th>Address</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Salary</th>
+                <th>Contractor</th>
+                <th>Country</th>
+                <th>Is HR</th>
+                <th>Update/Remove</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {employees.map((employee, index) => (
+                <tr key={index} className="employees-table">
+                  <td>{employeeData.employeeAddresses[index]}</td>
+                  <td><input type="text" value={employee.name} onChange={(e) => handleInputChange(e, index, 'name')} className="employees-text"/></td>
+                  <td><input type="number" value={employee.age} onChange={(e) => handleInputChange(e, index, 'age')} className="employees-text"/></td>
+                  <td><input type="number" value={employee.salary} onChange={(e) => handleInputChange(e, index, 'salary')} className="employees-text"/></td>
+                  <td><input type="checkbox" checked={employee.contractor} onChange={(e) => handleInputChange(e, index, 'contractor')} className="employees-checkbox"/></td>
+                  <td><input type="text" value={employee.country} onChange={(e) => handleInputChange(e, index, 'country')} className="employees-text"/></td>
+                  <td><input type="checkbox" checked={employee.isHr} onChange={(e) => handleInputChange(e, index, 'isHr')} className="employees-checkbox"/></td>
+                  <td>
+                    {accountType == "Gnowner" || (accountType == "HR" && permissionsState[2]) ? <button className="employees-button" onClick={() => handleUpdate(index)}>Update</button> : <></>}
+                    {accountType == "Gnowner" || (accountType == "HR" && permissionsState[1]) ? <button className="exit-button" onClick={() => handleRemove(index)}>Remove</button> : <></>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <table className="standard-style width-95">
+            <thead>
+              <tr>
+                <th>Address</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Salary</th>
+                <th>Contractor</th>
+                <th>Country</th>
+                <th>Is HR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((employee, index) => (
+                <tr key={index} className="employees-table">
+                  <td>{employeeData.employeeAddresses[index]}</td>
+                  <td>{employee.name}</td>
+                  <td>{employee.age.toString()}</td>
+                  <td>{employee.salary.toString()}</td>
+                  <td>{employee.contractor ? 'Yes' : 'No'}</td>
+                  <td>{employee.country}</td>
+                  <td>{employee.isHr ? 'Yes' : 'No'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
       ) : (
         <div>Loading employees...</div>
       )}

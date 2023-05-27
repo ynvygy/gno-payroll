@@ -28,18 +28,19 @@ const Gnowner = ({payrollContract, signer}) => {
     <form onSubmit={handleSubmit}>
       <h2>Permissions</h2>
       {permissions.map((permission, index) => (
-        <div key={index}>
+        <div key={index} className="permissions">
           <input
             type="checkbox"
+            className="employees-checkbox"
             checked={permissionsState[index]}
             onChange={() => handleCheckboxChange(index)}
           />
-          <label>
+          <label className="checkbox-label">
             {permissions[index]}
           </label>
         </div>
       ))}
-      <button type="submit">Save</button>
+      <button type="submit" className="employees-button">Save</button>
     </form>
   );
 };

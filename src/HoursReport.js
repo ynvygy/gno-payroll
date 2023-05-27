@@ -42,18 +42,30 @@ const HoursReport = ({payrollContract, signer}) => {
       <input type="number" value={hours} onChange={handleHoursChange} />
       <input type="date" value={selectedDate} onChange={handleDateChange} />
       <button onClick={handleAddHoursWorked} className="employees-button">Add hours worked</button>
-      <button onClick={handleGetSalaryInfo} className="employees-button">Get salary info</button>
+      <button onClick={handleGetSalaryInfo} className="employees-button">See unpaid balance</button>
       <button onClick={handleShowMeWorkedHours} className="employees-button">Show me worked hours</button>
-      {salaryInfo !== null && <p>Salary info: {salaryInfo.toString()}</p>}
+      {salaryInfo !== null && <p>Unpaid balance: {salaryInfo.toString()}</p>}
 
-      <div>
-        {workedDays.map((day, index) => (
-          <div key={index}>
-            <div>Date: {new Date(day * 1000).toLocaleDateString()}</div>
-            <div>Hours worked: {workedHours[index].toString()}</div>
-          </div>
-        ))}
-      </div>
+      {workedDays.length != 0 && (
+        <div className="hours-worked">
+          <table className="standard-style">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Worked Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {workedDays.map((day, index) => (
+                <tr key={index}>
+                  <td>{new Date(day * 1000).toLocaleDateString()}</td>
+                  <td>{workedHours[index].toString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

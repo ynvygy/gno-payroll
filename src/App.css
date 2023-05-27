@@ -85,16 +85,27 @@
 
 .employees-text {
   font-weight: bold;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 2);
+  border: none;
+  text-align: center;
 }
 
 .employees-checkbox {
   color: white;
   font-weight: bold;
   padding: 5px;
+  margin-left: 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transform: scale(1.2);
+}
+
+.employees-checkbox:checked {
   background-color: #0295a9;
-  margin-left: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
+}
+
+.employees-checkbox:checked:before {
+  content: '\2713'; 
+  color: #fdd037; 
+  font-weight: bold; 
 }
 
 .navbar-brand-container {
@@ -182,21 +193,150 @@
   display: flex;
 }
 
+.tax-title {
+  font-size: 30px;
+}
+
 .container {
   display: flex;
 }
 
+.selected {
+  color: #0295a9 !important;
+  font-weight: bold;
+}
+
 .left-column {
-  flex-basis: 50%;
+  flex-basis: 20%;
   margin-right: 10px;
 }
 
 .right-column {
-  flex-basis: 50%;
+  flex-basis: 60%;
+}
+
+ul.no-bullet {
+  list-style: none;
+  padding: 0px;
+}
+
+ul.no-bullet li {
+  font-size: 20px;
+  padding: 5px;
+}
+
+table.standard-style {
+  border-collapse: collapse;
+  font-size: 16px;
+  width: 80%;
+}
+
+.width-95 {
+  width: 95% !important;
+}
+
+table.standard-style thead th {
+  color: #0295a9;
+  background-color: #fdd037;
+  border-bottom: 1px solid #0295a9;
+  height: 30px;
+}
+
+table.standard-style tbody td {
+  border-bottom: 1px solid #0295a9;
+  padding: 4px;
+  text-align: center;
+  width: calc(100% / var(--num-columns));
+}
+
+table.excel-style {
+  border-collapse: collapse;
+  font-size: 16px;
+  width: 80%;
+}
+
+table.excel-style thead th {
+  color: black;
+  background-color: #e7e7e7;
+  border: 1px solid black;
+  height: 30px;
+}
+
+table.excel-style tbody td {
+  border: 1px solid black;
+  padding: 2px !important;
+  text-align: center;
+  padding: 0px;
 }
 
 .salary-estimator {
   width: 50%;
-  position: absolute;
-  top: 50%;
+  display: flex;
+  align-items: center;
+  padding-top: 50px;
+}
+
+.estimator-text {
+  font-size: 18px;
+  color: #0295a9;
+}
+
+.estimator-value {
+  border: 2px solid #0295a9;
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 18px;
+}
+
+.hours-worked {
+  width: 40%;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.date-picker {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.checkbox-label {
+  margin-left: 8px;
+  font-size: 15px;
+}
+
+.permissions {
+  padding-bottom: 10px;
+}
+
+.exit-button {
+  color: black;
+  font-weight: bold;
+  padding: 5px;
+  background-color: #e7e7e7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
+  border: 1px solid black;
+}
+
+.button-toggle {
+  padding-bottom: 10px;
+}
+
+.health-progress {
+  width: 300px;
+  height: 30px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 75%;
+  height: 100%;
+  background-color: #47a8e8;
+  transition: width 0.5s ease;
 }

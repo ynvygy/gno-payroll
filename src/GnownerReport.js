@@ -13,7 +13,10 @@ const GnownerReport = ({payrollContract, signer}) => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [outstandingDebt, setOutstandingDebt] = useState(0);
+  const [contractorDebt, setContractorDebt] = useState(0);
   const [taxExpenses, setTaxExpenses] = useState(0);
+  const [healthPercentage, setHealthPercentage] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchContractBalance() {
@@ -26,18 +29,54 @@ const GnownerReport = ({payrollContract, signer}) => {
     }
     fetchContractBalance();
 
-    async function fetchOutstandingDebt() {
-      const outstandingDebt = await payrollContract.getUnpaidSalariesSum();
-      setOutstandingDebt(outstandingDebt.toString());
-    }
-    fetchOutstandingDebt();
+    async function fetchData() {
+      const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+      const EurefakeContractFactory = new ethers.ContractFactory(eurefakeContractData.contract.abi, eurefakeContractBytecode.bytecode, signer || provider);
+      const eurefakeContract = EurefakeContractFactory.attach(eurefakeAddress);
 
-    async function fetchTaxExpenses() {
-      const taxExpenses = await payrollContract.getTaxExpenses();
-      setTaxExpenses(taxExpenses.toString());
+      const outstandingDebtPromise = payrollContract.getUnpaidSalariesSum();
+      const contractorDebtPromise = payrollContract.getUnpaidContractorsSum();
+      const taxExpensesPromise = payrollContract.getTaxExpenses();
+      const contractBalancePromise = eurefakeContract.balanceOf(payrollContract.address);
+    
+      const [contractBalancea, outstandingDebta, contractorDebta, taxExpensesa] = await Promise.all([
+        contractBalancePromise,
+        outstandingDebtPromise,
+        contractorDebtPromise,
+        taxExpensesPromise
+      ]);
+
+      const formattedBalance = ethers.utils.formatUnits(contractBalancea, 18)
+      setContractBalance(formattedBalance.toString());
+      setOutstandingDebt(outstandingDebta.toString());
+      setContractorDebt(contractorDebta.toString());
+      setTaxExpenses(taxExpensesa.toString());
+      
+      setLoading(false);
     }
-    fetchTaxExpenses();
+    
+    fetchData();
   }, [payrollContract]);
+
+  useEffect(() => {
+    if (
+      outstandingDebt !== null &&
+      contractorDebt !== null &&
+      taxExpenses !== null &&
+      contractBalance !== null
+    ) {
+      setHealthPercentage(
+        (
+          (1 -
+            (parseFloat(outstandingDebt) +
+              parseFloat(taxExpenses) +
+              parseFloat(contractorDebt)) /
+              parseFloat(contractBalance)) *
+          100
+        ).toFixed(2)
+      );
+    }
+  }, [outstandingDebt, contractorDebt, taxExpenses, contractBalance]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -63,7 +102,18 @@ const GnownerReport = ({payrollContract, signer}) => {
 
   return (
     <div>
-      <button onClick={generateReports} className="employees-button">Generate reports</button>
+      <div className="health-progress">
+        <div className="progress-bar">
+          {loading ? (
+            <div className="progress-fill loading">Loading...</div>
+          ) : (
+            <div
+              className="progress-fill"
+              style={{ width: `${healthPercentage}%` }}
+            ></div>
+          )}
+      </div>
+    </div>
       <div>
         Contract Balance: {contractBalance}
       </div>
@@ -71,13 +121,18 @@ const GnownerReport = ({payrollContract, signer}) => {
         Outstanding debt unpaid: {outstandingDebt}
       </div>
       <div>
+        Contractor debt: {contractorDebt}
+      </div>
+      <div>
         Tax expenses: {taxExpenses}
       </div>
       <div>
-        Health status: {((1-(parseFloat(outstandingDebt)+parseFloat(taxExpenses))/parseFloat(contractBalance))*100).toFixed(2)}
+        Health status: {healthPercentage}
       </div>
 
-      <div>
+      <button onClick={generateReports} className="employees-button">Generate new salary reports</button>
+
+      <div className="date-picker">
         <DatePicker
           selected={startDate}
           onChange={(date) => setStartDate(date)}
@@ -93,27 +148,29 @@ const GnownerReport = ({payrollContract, signer}) => {
           endDate={endDate}
           minDate={startDate}
         />
-        <button onClick={handleFormSubmit}>Submit</button>
+        <button onClick={handleFormSubmit} className="employees-button">Submit</button>
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Contractor Address</th>
-            <th>Country</th>
-            <th>Salary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredExpenses && filteredExpenses.map((expense) => (
-            <tr key={expense.address}>
-              <td>{expense.address}</td>
-              <td>{expense.country}</td>
-              <td>{expense.salary.toString()}</td>
+      {filteredExpenses != null && (
+        <table className="standard-table">
+          <thead>
+            <tr>
+              <th>Contractor Address</th>
+              <th>Country</th>
+              <th>Salary</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredExpenses.map((expense) => (
+              <tr key={expense.address}>
+                <td>{expense.address}</td>
+                <td>{expense.country}</td>
+                <td>{expense.salary.toString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
