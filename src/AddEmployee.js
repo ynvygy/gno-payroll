@@ -12,7 +12,6 @@ const AddEmployee = ({payrollContract, signer}) => {
   async function handleSubmit(e) {
     e.preventDefault();
     const tx = await payrollContract.connect(signer).addEmployee(name, age, salary, isContractor, country, payAddress, isHr);
-    //const tx = await payrollContract.connect(signer).getAllEmployees()
     await tx.wait();
     console.log("Employee added successfully!");
   }

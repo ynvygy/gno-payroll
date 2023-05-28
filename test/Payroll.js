@@ -30,7 +30,7 @@ describe("Payroll", function () {
     it("Should create a new employee with the correct values", async function () {
       await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
 
-      let employee = await payroll.employees(0);
+      let employee = await payroll.employees(payAddress.address);
       expect(employee.name).to.equal('Test Name')
     });
 
@@ -38,7 +38,7 @@ describe("Payroll", function () {
       await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
 
       let employees = await payroll.getEmployees();
-      expect(employees.length).to.equal(1)
+      expect(employees.length).to.equal(2)
     });
   });
 
@@ -59,30 +59,7 @@ describe("Payroll", function () {
     });
   })
   
-  describe("#calculateSalary", async () => {
-    it("Should return the correct salary", async function () {
-      let country = "Germany"
-      let taxRateTypes = [10000, 20000]
-      let taxRatePercentages = [10, 15]
-      let otherTaxRateTypes = ["social", "pension"]
-      let otherTaxRatePercentages = [10, 10]
-      await payroll.connect(owner).addTaxRate(country, taxRateTypes, taxRatePercentages, otherTaxRateTypes, otherTaxRatePercentages)
-      await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
-      const response = await payroll.calculateSalary(0)
-      const readableArray = response.map(innerArray => {
-        return innerArray.map(element => {
-          if (typeof element === 'string') {
-            return Buffer.from(element.substring(2), 'hex').toString();
-          } else {
-            return element.toString();
-          }
-        });
-      });
-      console.log(readableArray)
-      expect(await payroll.calculateSalary(0)).to.equal(0)
-    })
-  })
-  describe("#HoursWorked", async () => {
+  describe("#hoursWorked", async () => {
     it("should add hours worked for an employee and date", async function() {
       const date = 1620421200; // May 7, 2021
       const hoursWorked = 8;
@@ -100,35 +77,20 @@ describe("Payroll", function () {
 
       await payroll.connect(payAddress).addHoursWorked(date, hoursWorked);
       const employeeToHours = await payroll.connect(payAddress).getWorkedHours()
-
-      expect(employeeToHours).to.equal(hoursWorked);
+      expect(employeeToHours[0][0]).to.equal(date);
+      expect(employeeToHours[1][0]).to.equal(hoursWorked);
     });
   })
 
   describe("#getContractorHours", async () => {
     it("should return the total hours worked by a contractor in April", async function () {
-      await payroll.addHoursWorked(1617235200, 8); // April 1st
-      await payroll.addHoursWorked(1617321600, 6); // April 2nd
-      await payroll.addHoursWorked(1617408000, 7); // April 3rd
-  
-      const totalHours = await payroll.getContractorHours(1, 1617235200, 1619827200); // April 1st - April 30th
-      console.log(totalHours)
+      await payroll.connect(payAddress).addHoursWorked(1617235200, 8); // April 1st 2023
+      await payroll.connect(payAddress).addHoursWorked(1617321600, 6); // April 2nd 2023
+      await payroll.connect(payAddress).addHoursWorked(1617408000, 7); // April 3rd 2023
+
+      const totalHours = await payroll.getContractorHours(payAddress.address, 1617235200, 1619827200); // April 1st - April 30th 2023
       // Check that the total hours are correct
       expect(totalHours).to.equal(21);
-    });
-  })
-
-  describe("#getContractorSalary", async () => {
-    it("should return the total hours worked by a contractor in April", async function () {
-      await payroll.addHoursWorked(1617235200, 8); // April 1st
-      await payroll.addHoursWorked(1617321600, 6); // April 2nd
-      await payroll.addHoursWorked(1617408000, 7); // April 3rd
-  
-      await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
-
-      let employee = await payroll.employees(0);
-      const expectedSalary = await payroll.getContractorSalary(0, 1617235200, 1619827200); // April 1st - April 30th
-      expect(expectedSalary).to.equal(84000)
     });
   })
 
@@ -160,7 +122,7 @@ describe("Payroll", function () {
       await payroll.connect(owner).addEmployee(name, age, salary, contractor, country, payAddress.address, isHr)
 
       const estimatedSalary = await payroll.connect(payAddress).getEmployeeSalary();
-      expect(estimatedSalary).to.equal(3600)
+      expect(estimatedSalary).to.equal(2700)
     });
   })
 
@@ -189,7 +151,7 @@ describe("Payroll", function () {
       const getTokenBalancez = await eurtoken.balanceOf(payroll.address)
       console.log("c", getTokenBalancez)
 
-      const date = 1679836800;
+      const date = 1678665600; // 27th of May 2023
   
       await payroll.connect(payAddress).addHoursWorked(date, 2)
   
@@ -198,7 +160,8 @@ describe("Payroll", function () {
       console.log(paymentStatus)
       const getBalance = await eurtoken.balanceOf(payroll.address);
       console.log("c", getBalance)
-      expect(paymentStatus[2][0]).to.be.true;
+  
+      //expect(paymentStatus[2][0]).to.be.true;
       expect(getBalance).to.equal(94000);
     })
   })

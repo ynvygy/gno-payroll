@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './App.css';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Employees from "./Employees";
 import AddEmployee from "./AddEmployee";
 import TaxRates from "./TaxRates";
 import AddTaxRates from "./AddTaxRates";
-import TaxReport from "./TaxReport";
 import CustomNav from "./CustomNav";
 import HoursReport from "./HoursReport";
 import Dashboard from "./Dashboard";
@@ -98,7 +97,6 @@ const App = () => {
             <Route path="/addemployee" element={<AddEmployee payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/taxrates" element={<TaxRates payrollContract={payrollContract} signer={signer} />} />
             <Route path="/addtaxrates" element={<AddTaxRates payrollContract={payrollContract} signer={signer}/>} />
-            <Route path="/taxreport" element={<TaxReport payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/hoursreport" element={<HoursReport payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/gnowner" element={<Gnowner payrollContract={payrollContract} signer={signer}/>} />
             <Route path="/employeereport" element={<EmployeeReport payrollContract={payrollContract} signer={signer}/>} />

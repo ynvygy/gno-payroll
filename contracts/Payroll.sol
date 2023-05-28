@@ -103,6 +103,17 @@ contract Payroll {
 
     event EmployeeRemoved(address indexed employeeAddress);
 
+    // Modifiers
+    modifier onlyPermitted() {
+        require(
+            keccak256(bytes(getAccountType())) == keccak256(bytes("HR")) ||
+                keccak256(bytes(getAccountType())) ==
+                keccak256(bytes("Gnowner")),
+            "You do not have access rights"
+        );
+        _;
+    }
+
     constructor(address eurefakeTokenAddress) {
         owner = msg.sender;
         permissions = [
@@ -122,7 +133,7 @@ contract Payroll {
     }
 
     // Get account type of msg.sender
-    function getAccountType() external view returns (string memory) {
+    function getAccountType() public view returns (string memory) {
         if (owner == msg.sender) {
             return "Gnowner";
         } else {
