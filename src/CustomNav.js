@@ -49,7 +49,7 @@ const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, acco
               <Nav.Link href="/employees" className={selectedLink === '/employees' ? 'selected' : ''} onClick={() => handleLinkClick('/employees')}>Employees</Nav.Link>
               <Nav.Link href="/addemployee" className={selectedLink === '/addemployee' ? 'selected' : ''} onClick={() => handleLinkClick('/addemployee')}>Add Employee</Nav.Link>
               <Nav.Link href="/taxrates" className={selectedLink === '/taxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/taxrates')}>Tax Rates</Nav.Link>
-              <Nav.Link href="/addtaxrates" className={selectedLink === '/addtaxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/addtaxrates')}>Add Tax Rate</Nav.Link>
+              <Nav.Link href="/addtaxrates" className={selectedLink === '/addtaxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/addtaxrates')}>Tax builder</Nav.Link>
               <Nav.Link href="/hoursreport" className={selectedLink === '/hoursreport' ? 'selected' : ''} onClick={() => handleLinkClick('/hoursreport')}>Timesheet</Nav.Link>
               <Nav.Link href="/gnowner" className={selectedLink === '/gnowner' ? 'selected' : ''} onClick={() => handleLinkClick('/gnowner')}>Gnowner</Nav.Link>
               <Nav.Link href="/employeereport" className={selectedLink === '/employeereport' ? 'selected' : ''} onClick={() => handleLinkClick('/employeereport')}>Employee Report</Nav.Link>
