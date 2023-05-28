@@ -77,6 +77,10 @@ const Employees = ({ payrollContract, signer, accountType }) => {
     dispatch({ type: "SET_EMPLOYEES", payload: { employees, employeeAddresses } });
   };
 
+  const generateReports = async () => {
+    await payrollContract.connect(signer).generatePaymentsForCurrentMonth(45);
+  }
+
   return (
     <div>
       <div>Employee count: {employeeCount}</div>
@@ -91,6 +95,7 @@ const Employees = ({ payrollContract, signer, accountType }) => {
             Enter edit mode
           </button>
         )}
+        <button onClick={generateReports} className="employees-button">Generate new salary reports</button>
       </div>
       {employees && employees.length > 0 ? (
         editMode ? (

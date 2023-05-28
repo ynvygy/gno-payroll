@@ -74,6 +74,17 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
 }
 
+.brand-text-nav {
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  padding: 10px;
+  background-color: #0295a9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
+  width: 100%;
+  text-align: center;
+}
+
 .employees-button {
   color: white;
   font-weight: bold;
@@ -137,6 +148,7 @@
   font-weight: bold;
   margin-bottom: 300px;
   color: #0295a9;
+  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
 }
 
 .centered-text {
@@ -144,7 +156,8 @@
   font-weight: bold;
   margin-bottom: 300px;
   color: #fdd037;
-  background-color: #0295a9;
+  background: linear-gradient(to bottom, white 50%, #0295a9 50%);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .input-container {
@@ -322,7 +335,7 @@ table.excel-style tbody td {
 }
 
 .health-progress {
-  width: 300px;
+  width: 600px;
   height: 30px;
 }
 
@@ -332,11 +345,41 @@ table.excel-style tbody td {
   background-color: #f2f2f2;
   border-radius: 5px;
   overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
+  border: 1px solid #fdd037;
 }
 
 .progress-fill {
   width: 75%;
   height: 100%;
-  background-color: #47a8e8;
+  background-color: #fdd037;
   transition: width 0.5s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 2);
+}
+
+.add-button {
+  margin-top: 30px;
+}
+
+.health {
+  padding-left: 200px;
+  padding-top: 5px;
+  font-weight: bold;
+  color: block;
+}
+
+.balances {
+  padding-top: 20px;
+  font-weight: bold;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.green {
+  color: green;
+}
+
+.red {
+  color: red;
 }

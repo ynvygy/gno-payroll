@@ -40,7 +40,7 @@ const Gnowner = ({payrollContract, signer}) => {
           </label>
         </div>
       ))}
-      <button type="submit" className="employees-button">Save</button>
+      <button type="submit" className="employees-button add-button">Save</button>
     </form>
   );
 };

@@ -54,7 +54,7 @@ const EmployeeReport = ({ payrollContract, signer }) => {
           </tbody>
         </table>
       </div>
-      <button onClick={payOutstandingDebt} className="employees-button">Pay all outstanding debt</button>
+      <button onClick={payOutstandingDebt} className="employees-button add-button">Pay all outstanding debt</button>
     </div>
   );
 };

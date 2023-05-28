@@ -77,15 +77,17 @@ function AddTaxRates({payrollContract, signer}) {
         </div>
         <br />
         <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Lower Limit</th>
-              <th>Upper Limit</th>
-              <th>Tax Value</th>
-              <th>Tax Type</th>
-            </tr>
-          </thead>
+          {taxNames.length != 0 ?
+            (<thead>
+              <tr>
+                <th>Name</th>
+                <th>Lower Limit</th>
+                <th>Upper Limit</th>
+                <th>Tax Value</th>
+                <th>Tax Type</th>
+              </tr>
+            </thead>) : (<></>)
+          }
           <tbody>
             {taxNames.map((item, index) => (
               <tr key={index}>
@@ -103,7 +105,7 @@ function AddTaxRates({payrollContract, signer}) {
             ))}
           </tbody>
         </table>
-        <button type="button" onClick={handleTaxRow} className="employees-button">Add</button>
+        <button type="button" onClick={handleTaxRow} className="employees-button add-button">Add</button>
         <br />
         <br />
         <button type="submit" className="employees-button">Save tax rate</button>

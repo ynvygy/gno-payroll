@@ -11,17 +11,20 @@ async function main() {
   const [deployer] = await hre.ethers.getSigners();
 
   const Eurefake = await hre.ethers.getContractFactory("Eurefake");
-  const eurefakeContract = await Eurefake.deploy();
+  const eurefakeContract = await Eurefake.deploy({gasPrice: ethers.utils.parseUnits('1', 'gwei')});
   await eurefakeContract.deployed()
   console.log("Eurefake contract deployed to:", eurefakeContract.address);
 
   const Payroll = await hre.ethers.getContractFactory("Payroll");
-  const payrollContract = await Payroll.deploy(eurefakeContract.address);
+  const payrollContract = await Payroll.deploy(eurefakeContract.address, {gasPrice: ethers.utils.parseUnits('1', 'gwei')});
   await payrollContract.deployed()
   console.log("Payroll contract deployed to:", payrollContract.address);
 
-  // for transaction purposes
+  // for local transaction purposes
   const amountToSend = hre.ethers.utils.parseEther("1000");
+
+  // for chiado transaction purposes
+  //const amountToSend = hre.ethers.utils.parseEther("0.2");
 
   const tx = {
     to: payrollContract.address,

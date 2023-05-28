@@ -45,7 +45,7 @@ const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, acco
         <Navbar bg="light" expand="lg" className="left-navbar">
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="flex-column">
-              <Nav.Link href="/" className={selectedLink === '/' ? 'selected' : ''} onClick={() => handleLinkClick('/')}>Dashboard</Nav.Link>
+              <Nav.Link href="/" className={selectedLink === '/' ? 'selected' : ''} onClick={() => handleLinkClick('/')}>Dashgnord</Nav.Link>
               <Nav.Link href="/employees" className={selectedLink === '/employees' ? 'selected' : ''} onClick={() => handleLinkClick('/employees')}>Employees</Nav.Link>
               <Nav.Link href="/addemployee" className={selectedLink === '/addemployee' ? 'selected' : ''} onClick={() => handleLinkClick('/addemployee')}>Add Employee</Nav.Link>
               <Nav.Link href="/taxrates" className={selectedLink === '/taxrates' ? 'selected' : ''} onClick={() => handleLinkClick('/taxrates')}>Tax Rates</Nav.Link>
@@ -58,7 +58,7 @@ const CustomNav = ({ account, setAccount, connectWallet, disconnectHandler, acco
           </Navbar.Collapse>
 
           <div className="navbar-brand-container">
-            <div className="brand-text">{accountType}</div>
+            <div className="brand-text-nav">{accountType}</div>
           </div>
         </Navbar>
       ) : (
