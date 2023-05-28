@@ -448,8 +448,7 @@ contract Payroll {
         } else {
             Payment[] storage payments = employeeToPayments[msg.sender];
             for (uint i = 0; i < payments.length; i++) {
-                uint toPay = (payments[i].paymentAmount + payments[i].taxes) *
-                    (10 ** 18);
+                uint toPay = (payments[i].paymentAmount) * (10 ** 18);
                 eurefakeToken.transfer(msg.sender, toPay);
                 payments[i].paid = true;
             }
